@@ -1,4 +1,3 @@
-const message = 'hello world'
 const P = 5
 const Q = 7
 const N = P * Q
@@ -11,11 +10,8 @@ while (e < phi) {
   e = e + 1
 }
 const d = getKeyDesencryption(e, phi)
-const publicKeys = [e, N]
-const privateKeys = [d, N]
-
-console.log(N, 'N')
-console.log(d, 'd')
+//const publicKeys = [e, N]
+//const privateKeys = [d, N]
 
 function gcd(e, phi) {
   let a = e
@@ -64,14 +60,10 @@ function convertOneToFourLetters(num) {
   const num3 = Math.floor(firstNum2 / 2)
   const num4 = Math.ceil(firstNum2 / 2)
 
-  /* const array = [num]
-  //while (array.length !== 4) {
-    const temp = [...array].flat(1)
-    array.length = 0
-    array.push([...temp.map(number => [Math.floor(number / 2), Math.ceil(number / 2)])])
-  //}
-  console.log(array)
-  console.log([num1, num2, num3, num4]) */
+  const array = [num]
+  const temp = [...array].flat(1)
+  array.length = 0
+  array.push([...temp.map(number => [Math.floor(number / 2), Math.ceil(number / 2)])])
   return [num1, num2, num3, num4]
 }
 
@@ -84,7 +76,7 @@ function deconvertFourToOneLetter(nums) {
   return num
 }
 
-function encodeMessage(message) {
+export function encodeMessageRSA(message) {
   const messageArray = message.split('').map(letter => letter.charCodeAt(0))
   const result = messageArray.map(num => {
     const dividedNums = convertOneToFourLetters(num).map(singleNum => encodeRSA(e, N, singleNum))
@@ -95,7 +87,7 @@ function encodeMessage(message) {
   return result.flat(1).map(num => String.fromCharCode(num)).join('')
 }
 
-function decodeMessage(codedMessage) {
+export function decodeMessageRSA(codedMessage) {
   const messageArray = codedMessage.split('').map(letter => letter.charCodeAt(0))
   const message = []
   for (let i = 0; i < messageArray.length / 4; i++) {
@@ -105,8 +97,3 @@ function decodeMessage(codedMessage) {
 
   return message.flat(1).map(num => String.fromCharCode(num)).join('')
 }
-
-const encoded = encodeMessage('hello world')
-const decoded = decodeMessage(encoded)
-console.log(encoded)
-console.log(decoded)
