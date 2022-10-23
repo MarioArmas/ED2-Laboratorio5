@@ -2,6 +2,7 @@ import Tree from './tree.js'
 import { huffmanEncoding, encode, decode } from './huffman.js'
 import { lz78Encoding, lz78Decoding } from './lz78.js'
 import { encrypt, decrypt } from './transposition.js'
+import { encodeMessageRSA, decodeMessageRSA } from './RSA.js'
 
 const dictionary = (key, companyTree, person) => {
   if (key === 'INSERT') companyTree.insert(person)
@@ -27,15 +28,15 @@ async function readFile() {
 }
 
 async function mainFunction(data) {
-  const password = prompt("Cree su contraseña")
+  //const password = prompt("Cree su contraseña")
   await Promise.all(data.map(async (item) => {
     const operationString = item[0]
     const person = item[1]
     person?.address
     person?.datebirth
     person?.companies
-    person.lettersCompressed = await getLetters(person.dpi)
-    person.conversationsEncrypted = await getConversations(person.dpi, password)
+    //person.lettersCompressed = await getLetters(person.dpi)
+    //person.conversationsEncrypted = await getConversations(person.dpi, password)
 
     await Promise.all(person?.companies?.map(company => {
       // create tree for each company
@@ -49,29 +50,35 @@ async function mainFunction(data) {
       // execute function from file
       const huffman = trees[company].huffman
       personToStore.dpi = encode(person.dpi, huffman.dictLetters)
+      personToStore.recluiterEncoded = encodeMessageRSA(person.recluiter + company)
       dictionary(operationString, trees[company].tree, personToStore)
       trees[company].tree.sortByDPI()
     }))
   }))
 
-  const companyName = 'Spinka Group'
-  const dpiSearch = '2739728493209'
+  const companyName = 'Ferry and Sons'
+  const dpiSearch = '9843537392080'
   const treeFromCompany = trees[companyName]
-  const inputPassword = prompt("Ingrese su contraseña")
+  //const inputPassword = prompt("Ingrese su contraseña")
+  const recluiterKey = encodeMessageRSA('Owen Corwin' + companyName)
 
   console.log('SEARCH', treeFromCompany.tree.search({ dpi: encode(dpiSearch, treeFromCompany.huffman.dictLetters) })?.map(person => {
-    return {
-      ...person,
-      'dpi': decode(person.dpi, treeFromCompany.huffman.dictBinary),
-      'dpiEncoded': person.dpi,
-      'letters': person.lettersCompressed.map((letter) => {
-        const { dictionary, textCompressed } = letter
-        return lz78Decoding(dictionary, textCompressed)
-      }),
-      'conversations': person.conversationsEncrypted.map((conversation) => {
-        return decrypt(inputPassword, conversation)
-      })
-    }
+    return decodeMessageRSA(person.recluiterEncoded) == decodeMessageRSA(recluiterKey) ?
+      {
+        ...person,
+        'dpi': decode(person.dpi, treeFromCompany.huffman.dictBinary),
+        'dpiEncoded': person.dpi,
+        /* 'letters': person.lettersCompressed.map((letter) => {
+          const { dictionary, textCompressed } = letter
+          return lz78Decoding(dictionary, textCompressed)
+        }),
+        'conversations': person.conversationsEncrypted.map((conversation) => {
+          return decrypt(inputPassword, conversation)
+        }), */
+        //'recluiterEncoded': decodeMessageRSA(person.recluiter + companyName),
+        'recluiter': person.recluiter,
+      }
+      : 'Wrong recluiter' + recluiterKey
   }))
 }
 
