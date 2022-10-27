@@ -10,8 +10,10 @@ while (e < phi) {
   e = e + 1
 }
 const d = getKeyDesencryption(e, phi)
-//const publicKeys = [e, N]
-//const privateKeys = [d, N]
+export const publicKeys = [e, N]
+const privateKeys = [d, N]
+console.log(d, "d")
+console.log(N, "N")
 
 function gcd(e, phi) {
   let a = e
@@ -41,12 +43,12 @@ function getKeyDesencryption(e, phi) {
   return possibleValues[possibleValues.length - 1]
 }
 
-function encodeRSA(e, N, input) {
+export function encodeRSA(e, N, input) {
   const num = Math.pow(input, e)
   return num % N
 }
 
-function decodeRSA(d, N, input) {
+export function decodeRSA(d, N, input) {
   const num = Math.pow(input, d)
   return num % N
 }

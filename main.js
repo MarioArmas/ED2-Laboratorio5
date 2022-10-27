@@ -2,7 +2,7 @@ import Tree from './tree.js'
 import { huffmanEncoding, encode, decode } from './huffman.js'
 import { lz78Encoding, lz78Decoding } from './lz78.js'
 import { encrypt, decrypt } from './transposition.js'
-import { encodeMessageRSA, decodeMessageRSA } from './RSA.js'
+import { encodeMessageRSA, decodeMessageRSA, publicKeys, encodeRSA, decodeRSA } from './RSA.js'
 
 const dictionary = (key, companyTree, person) => {
   if (key === 'INSERT') companyTree.insert(person)
@@ -80,6 +80,27 @@ async function mainFunction(data) {
       }
       : 'Wrong recluiter' + recluiterKey
   }))
+
+  const e = publicKeys[0]
+  const N1 = publicKeys[1]
+  const d = parseInt(prompt("Ingrese la primer key"))
+  const N2 = parseInt(prompt("Ingrese la segunda key"))
+  const tests = Array.from({length: N1 - 1}, (_, i) => i + 1)
+  const coded = tests.map(element => {
+    return encodeRSA(e, N1, element)
+  })
+  const decoded = coded.map(element => {
+    return decodeRSA(d, N2, element)
+  })
+
+  if (JSON.stringify(tests) === JSON.stringify(decoded)) {
+    console.log("Las llaves son correctas")
+  } else {
+    console.log("Las llaves son incorrectas")
+  }
+
+  console.log(tests)
+  console.log(decoded)
 }
 
 async function getLetters(dpi) {
